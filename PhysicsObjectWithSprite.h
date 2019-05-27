@@ -15,7 +15,7 @@ class PhysicsObjectWithSprite {
 	int posX = 0, posY = 0;
 	b2Body* body;
 	Sprite sprite;
-	int objectNum  = (int) objectList.size();
+	//int objectNum  = (int) objectList.size();
 	int time = 0;
 public:
 	PhysicsObjectWithSprite(Texture _texture, int _type) {
@@ -28,7 +28,7 @@ public:
 	};
 	 
 	void destroy() {
-		objectList.erase(objectList[objectNum]); 
+		//objectList.erase(objectList[objectNum]); 
 
 
 	}
@@ -66,7 +66,7 @@ public:
 		sprite.setRotation(body->GetAngle() * 180 / b2_pi);
 		time += 1;
 		if (time == 300) {
-			destroy();
+			//destroy();
 		}
 
 

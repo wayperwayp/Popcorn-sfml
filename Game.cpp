@@ -7,7 +7,7 @@
 #include<vector> 
 #include "PhysicsObjectWithSprite.h"
 class Game {
-	vector<PhysicsObjectWithSprite> objectList;
+	//vector<PhysicsObjectWithSprite> objectList;
 
 
 
