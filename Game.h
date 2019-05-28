@@ -9,14 +9,14 @@ public:
 	vector <PhysicsObjectWithSprite> objectList = {};
 	bool paused = false;
 	bool game_over = false;
-	int score = 0;
-	float player_posX = 0;
-	float player_posY = 0;
+	int score = 0; 
+	Vector2f player_pos;
+	Clock clock;
 	RenderWindow *Window;
-	int platform_ctr = 0;
+	int platform_ctr = -2;
 	View view;
 	int high_score = 0;
-	b2Vec2 Gravity = b2Vec2(0.f, 9.8f);
+	b2Vec2 Gravity = b2Vec2(0.f, 0.f);
 	b2World World = b2World(Gravity);
 	Game * self;
 	PhysicsObjectWithSprite player;
@@ -25,6 +25,7 @@ public:
 	};
 	Game(RenderWindow *_window) {
 		Window = _window;
+		player_pos = Vector2f(0.f, 0.f);
 		view.setSize((float) SCREEN_WIDTH * 2, (float)SCREEN_HEIGHT * 2);
 		Window->setView(view);
 		Window->setFramerateLimit(60);
@@ -49,57 +50,39 @@ public:
 
 	};
 	void addPlayer() {
-		//int MouseX = Mouse::getPosition(*Window).x/*;
-		//int MouseY = Mouse::getPosition(*Window).y;*/
+		if (paused) return;
+		paused = true;
+		int MouseX = Mouse::getPosition(*Window).x ;
+		int MouseY = Mouse::getPosition(*Window).y; 
 		
 		Texture BoxTexture;
-		BoxTexture.loadFromFile("box3.png");
-		player = PhysicsObjectWithSprite(&World, false, 1, 700, 300, 20 ,5,
-			&player_posX, &player_posY, BoxTexture);
+		BoxTexture.loadFromFile("player.png");
+		player = PhysicsObjectWithSprite(&World, false, 1, MouseX, MouseY, 70 ,70,
+			&player_pos.x, &player_pos.y, BoxTexture);
 		/*PhysicsObjectWithSprite(
 		b2World * _world, bool _isPlatform, int _type, int _posX, int _posY, float _length,
 		float _width, float *player_posX, float *player_posY, Texture _texture) {*/
 		objectList.push_back(player);
 
 	};
-	void addObstacle() {
-		/*int MouseX = Mouse::getPosition(*Window).x;
-		int MouseY = Mouse::getPosition(*Window).y;
-		Texture BoxTexture;
-		BoxTexture.loadFromFile("box.png");
-		PhysicsObjectWithSprite p(BoxTexture, 0, MouseX, MouseY, &World, 100, 200);
-		objectList.push_back(p);*/
-	};
-	void addGround() { 
-		/*Texture BoxTexture;
-		BoxTexture.loadFromFile("box.png");
-		PhysicsObjectWithSprite p(BoxTexture, 0, 0, 1000, &World, 10, SCREEN_WIDTH);
-		objectList.push_back(p);*/
-
-	}
+	 
 	void addPlatform() {
-
-		/*Platform(
-			b2World * _world, Texture _texture, int _type, int _posX, int _posY, float _length,
-			float _width, float *player_posX, float *player_posY)*/
-
+		 
 		Texture BoxTexture;
-		BoxTexture.loadFromFile("box.png");
-		PhysicsObjectWithSprite p(	&World, true, 0,  platform_ctr * 600, 700, 100.f, SCREEN_WIDTH/6,
-			 &player_posX, &player_posY, BoxTexture);
+		BoxTexture.loadFromFile("tube.png");
+		PhysicsObjectWithSprite p(	&World, true, 0,  platform_ctr * (400+ rand()%800), 1800, 1000.f, 70,
+			 &player_pos.x, &player_pos.y, BoxTexture);
 		/*PhysicsObjectWithSprite(
 			b2World * _world, bool _isPlatform, int _type, int _posX, int _posY, float _length,
 			float _width, float *player_posX, float *player_posY, Texture _texture) {*/
-
-		/*Platform p(&World, BoxTexture, 0, platform_ctr*500, 700, SCREEN_WIDTH / 2,
-		800, &player_posX, &player_posY);*/
+		 
 		objectList.push_back(p);
 		platform_ctr++;
 
 	}
 	void gameLoop() {
 		Event event;
-		addPlayer();
+		//addPlayer();
 		while (Window->isOpen())
 		{	
 			 cout << "Number of Physics elements: " << objectList.size() << endl;
@@ -119,15 +102,17 @@ public:
 			}
 
 			if (Mouse::isButtonPressed(Mouse::Right)) {
-				//addPlayer();
+				addPlayer();
 				//addObstacle();
 			}
-			player_posX = player.body->GetPosition().x; 
-			player_posY = player.body->GetPosition().y;
-			cout << player_posX << "pos"<<endl;
-			view.setCenter(player_posX, player_posY); 
-			Window->setView(view);
+			//player_pos.x = (float)player.body->GetPosition().x;
+			//player_pos.y = (float)player.body->GetPosition().y;
+
+			//cout << player_posX << "pos"<<endl;
+			view.setCenter(player_pos*SCALE); 
+			//Window->setView(view);
 			drawWorldObjectsOnFrame();
+			//if ((int)player_pos.x % 100 == 0) addPlatform();
 
 
 		}
@@ -136,7 +121,9 @@ public:
 
 	}
 	void drawWorldObjectsOnFrame() {
-		World.Step(1 / 60.f, 8, 3);
+
+		World.Step(1 / 60.f, 8, 3); 
+		float dt = clock.restart().asSeconds();
 		Window->clear(sf::Color::White);
 		vector <int> deleteList = {};
 		int oLp = 0; 
@@ -145,7 +132,7 @@ public:
 				if (!i->active) {
 					deleteList.push_back(oLp);
 				}
-				else Window->draw(i->drawSprite());
+				else Window->draw(i->drawSprite(dt));
 				oLp++;
 			}  
 			int z = 0;
