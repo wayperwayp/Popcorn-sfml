@@ -50,8 +50,9 @@ public:
 	};
 
 	void destroy() { 
-		active = false;
+
 		world->DestroyBody(body);
+		active = false;
 		//delete this;
 
 	}

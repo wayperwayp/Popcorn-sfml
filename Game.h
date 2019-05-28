@@ -91,17 +91,24 @@ public:
 	}
 	void drawWorldObjectsOnFrame() {
 		World.Step(1 / 60.f, 8, 3);
-		Window->clear(sf::Color::White);  
-
-		for (auto i = objectList.begin(); i != objectList.end(); i++) {
-			 
-				if (!i->active) { 
-					objectList.erase(i);  
-				}
+		Window->clear(sf::Color::White); 
+		vector <int> deleteList = {}; 
+		 int dlIter = 0;
+		 int oLp = 0;
+			for (auto i = objectList.begin(); i != objectList.end(); i++) { 
 				Window->draw(i->drawSprite());
-		  
+				if (!i->active) { 
+					deleteList.push_back(oLp);
+				}
+				oLp++;
+			} 
+			for (auto i = deleteList.begin(); i != deleteList.end(); i++) {
+				objectList.erase(objectList.begin() + *i);
+			}
+			deleteList.clear();
 
-		}
+			 
+
 		Window->display();
 
 	}
