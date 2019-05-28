@@ -23,6 +23,8 @@ bool active = true;
 	b2World* world;
 	int objectNum  = 0;
 	int time = 0; 
+	float length = 16.f;
+	float width = 16.f;
 public:
 	PhysicsObjectWithSprite( 
 		Texture _texture, int _type, b2World * _world) {
@@ -48,6 +50,19 @@ public:
 		addToWorld();
 
 	};
+	PhysicsObjectWithSprite(
+		Texture _texture, int _type, int _posX, int _posY, b2World * _world, float _length, float _width) {
+
+		this->posX = _posX;
+		this->posY = _posY;
+		this->texture = _texture;
+		this->type = _type;
+		this->world = _world;
+		this->length = _length;
+		this->width = _width;
+		addToWorld();
+
+	};
 
 	void destroy() { 
 
@@ -65,7 +80,7 @@ public:
 		body = world->CreateBody(&BodyDef);
 
 		b2PolygonShape Shape;
-		Shape.SetAsBox((32.f / 2) / SCALE, (32.f / 2) / SCALE);
+		Shape.SetAsBox(this->width/ SCALE, this->length/ SCALE);
 		b2FixtureDef FixtureDef;
 		FixtureDef.density = 1.f;
 		FixtureDef.friction = 0.7f;

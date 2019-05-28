@@ -56,14 +56,21 @@ public:
 		int MouseY = Mouse::getPosition(*Window).y;
 		Texture BoxTexture;
 		BoxTexture.loadFromFile("box.png");
-		PhysicsObjectWithSprite p(BoxTexture, 0, MouseX, MouseY, &World);
+		PhysicsObjectWithSprite p(BoxTexture, 0, MouseX, MouseY, &World, 100, 200);
 		objectList.push_back(p);
 	};
+	void addGround() { 
+		Texture BoxTexture;
+		BoxTexture.loadFromFile("box.png");
+		PhysicsObjectWithSprite p(BoxTexture, 0, 0, 1000, &World, 10, 1920);
+		objectList.push_back(p);
+
+	}
 	void gameLoop() {
 		Event event;
 		while (Window->isOpen())
-		{
-			 cout << "Numbser of Physics elements: " << objectList.size() << endl;
+		{	
+			 cout << "Numbsssadffafadfaszdser of Physics elements: " << objectList.size() << endl;
 
 			while (Window->pollEvent(event)) {
 				if (event.type == Event::Closed) Window->close();
@@ -75,6 +82,7 @@ public:
 
 			if (Mouse::isButtonPressed(Mouse::Left)) {
 				addPlayer();
+				addGround();
 			}
 
 			if (Mouse::isButtonPressed(Mouse::Right)) {
@@ -91,24 +99,25 @@ public:
 	}
 	void drawWorldObjectsOnFrame() {
 		World.Step(1 / 60.f, 8, 3);
-		Window->clear(sf::Color::White); 
-		vector <int> deleteList = {}; 
-		 int dlIter = 0;
-		 int oLp = 0;
-			for (auto i = objectList.begin(); i != objectList.end(); i++) { 
-				Window->draw(i->drawSprite());
-				if (!i->active) { 
+		Window->clear(sf::Color::White);
+		vector <int> deleteList = {};
+		int oLp = 0; 
+			for (auto i = objectList.begin(); i != objectList.end(); i++) {
+
+				if (!i->active) {
 					deleteList.push_back(oLp);
 				}
+				else Window->draw(i->drawSprite());
 				oLp++;
-			} 
-			for (auto i = deleteList.begin(); i != deleteList.end(); i++) {
-				objectList.erase(objectList.begin() + *i);
-			}
+			}  
+			int z = 0;
+				for (auto i = deleteList.begin(); i != deleteList.end(); i++) {
+					 objectList.erase(objectList.begin() + *i-z);   
+					 z++;
+					
+				}  
 			deleteList.clear();
-
-			 
-
+			World.DrawDebugData();
 		Window->display();
 
 	}

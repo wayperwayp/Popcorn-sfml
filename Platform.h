@@ -6,7 +6,7 @@ class Platform : PhysicsObjectWithSprite{
 
 
 
-	Platform() {
+	Platform() { 
 
 
 	};
