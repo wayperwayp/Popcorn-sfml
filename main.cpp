@@ -1,13 +1,12 @@
  
 //#include "PhysicsObjectWithSprite.h"
-#include "Game.h"
-
+#include "Game.h" 
  
 using namespace std;
 using namespace sf;    
 int main()
 { 
-	RenderWindow Window(VideoMode(1920, 1080, 32), "Game Screen");
+	RenderWindow Window(VideoMode(1366, 768, 32), "Game Screen");
 	Window.setFramerateLimit(60);
 	Game game(&Window);
 

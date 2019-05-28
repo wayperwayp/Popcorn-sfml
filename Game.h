@@ -1,6 +1,6 @@
 #pragma once
 #include "PhysicsObjectWithSprite.h"
-
+//#include "Platform.h" 
 
 using namespace std;
 using namespace sf;
@@ -10,17 +10,23 @@ public:
 	bool paused = false;
 	bool game_over = false;
 	int score = 0;
+	float player_posX = 0;
+	float player_posY = 0;
 	RenderWindow *Window;
-
+	int platform_ctr = 0;
+	View view;
 	int high_score = 0;
 	b2Vec2 Gravity = b2Vec2(0.f, 9.8f);
 	b2World World = b2World(Gravity);
 	Game * self;
+	PhysicsObjectWithSprite player;
 	Game() {
 
 	};
 	Game(RenderWindow *_window) {
 		Window = _window;
+		view.setSize((float) SCREEN_WIDTH * 2, (float)SCREEN_HEIGHT * 2);
+		Window->setView(view);
 		Window->setFramerateLimit(60);
 		b2GLDraw fooDrawInstance;
 		World.SetDebugDraw(&fooDrawInstance);
@@ -43,34 +49,60 @@ public:
 
 	};
 	void addPlayer() {
-		int MouseX = Mouse::getPosition(*Window).x;
-		int MouseY = Mouse::getPosition(*Window).y;
+		//int MouseX = Mouse::getPosition(*Window).x/*;
+		//int MouseY = Mouse::getPosition(*Window).y;*/
+		
 		Texture BoxTexture;
-		BoxTexture.loadFromFile("box.png");
-		PhysicsObjectWithSprite p(BoxTexture, 1, MouseX, MouseY, &World);
-		objectList.push_back(p);
+		BoxTexture.loadFromFile("box3.png");
+		player = PhysicsObjectWithSprite(&World, false, 1, 700, 300, 20 ,5,
+			&player_posX, &player_posY, BoxTexture);
+		/*PhysicsObjectWithSprite(
+		b2World * _world, bool _isPlatform, int _type, int _posX, int _posY, float _length,
+		float _width, float *player_posX, float *player_posY, Texture _texture) {*/
+		objectList.push_back(player);
 
 	};
 	void addObstacle() {
-		int MouseX = Mouse::getPosition(*Window).x;
+		/*int MouseX = Mouse::getPosition(*Window).x;
 		int MouseY = Mouse::getPosition(*Window).y;
 		Texture BoxTexture;
 		BoxTexture.loadFromFile("box.png");
 		PhysicsObjectWithSprite p(BoxTexture, 0, MouseX, MouseY, &World, 100, 200);
-		objectList.push_back(p);
+		objectList.push_back(p);*/
 	};
 	void addGround() { 
+		/*Texture BoxTexture;
+		BoxTexture.loadFromFile("box.png");
+		PhysicsObjectWithSprite p(BoxTexture, 0, 0, 1000, &World, 10, SCREEN_WIDTH);
+		objectList.push_back(p);*/
+
+	}
+	void addPlatform() {
+
+		/*Platform(
+			b2World * _world, Texture _texture, int _type, int _posX, int _posY, float _length,
+			float _width, float *player_posX, float *player_posY)*/
+
 		Texture BoxTexture;
 		BoxTexture.loadFromFile("box.png");
-		PhysicsObjectWithSprite p(BoxTexture, 0, 0, 1000, &World, 10, 1920);
+		PhysicsObjectWithSprite p(	&World, true, 0,  platform_ctr * 600, 700, 100.f, SCREEN_WIDTH/6,
+			 &player_posX, &player_posY, BoxTexture);
+		/*PhysicsObjectWithSprite(
+			b2World * _world, bool _isPlatform, int _type, int _posX, int _posY, float _length,
+			float _width, float *player_posX, float *player_posY, Texture _texture) {*/
+
+		/*Platform p(&World, BoxTexture, 0, platform_ctr*500, 700, SCREEN_WIDTH / 2,
+		800, &player_posX, &player_posY);*/
 		objectList.push_back(p);
+		platform_ctr++;
 
 	}
 	void gameLoop() {
 		Event event;
+		addPlayer();
 		while (Window->isOpen())
 		{	
-			 cout << "Numbsssadffafadfaszdser of Physics elements: " << objectList.size() << endl;
+			 cout << "Number of Physics elements: " << objectList.size() << endl;
 
 			while (Window->pollEvent(event)) {
 				if (event.type == Event::Closed) Window->close();
@@ -81,14 +113,20 @@ public:
 			}
 
 			if (Mouse::isButtonPressed(Mouse::Left)) {
-				addPlayer();
-				addGround();
+				addPlatform();
+			/*	addPlayer();
+				addGround();*/
 			}
 
 			if (Mouse::isButtonPressed(Mouse::Right)) {
-				addObstacle();
+				//addPlayer();
+				//addObstacle();
 			}
-
+			player_posX = player.body->GetPosition().x; 
+			player_posY = player.body->GetPosition().y;
+			cout << player_posX << "pos"<<endl;
+			view.setCenter(player_posX, player_posY); 
+			Window->setView(view);
 			drawWorldObjectsOnFrame();
 
 

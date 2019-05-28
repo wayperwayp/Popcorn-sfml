@@ -1,12 +1,13 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
-#include "b2GLDraw.h"
-//#include "Game.h"
+#include "b2GLDraw.h" 
 #include<iostream>
 #include<conio.h> 
 #include<vector>
 
+  const int SCREEN_WIDTH = 1366;
+  const int SCREEN_HEIGHT = 768;
 static const float SCALE = 30.f;
 using namespace sf; 
 using namespace std;
@@ -15,9 +16,13 @@ class PhysicsObjectWithSprite {
 	//background process calls this per dt 
 public:
 	Texture texture;
+	bool isPlatform = true; 
 	int type = 0;
 	int posX = 0, posY = 0;
 	b2Body* body;
+
+	float *player_posX = 0;
+	float *player_posY = 0;
 bool active = true;
 	Sprite sprite;
 	b2World* world;
@@ -64,6 +69,24 @@ public:
 
 	};
 
+	PhysicsObjectWithSprite(
+		b2World * _world,bool _isPlatform,  int _type, int _posX, int _posY, float _length,
+		float _width, float *player_posX, float *player_posY, Texture _texture ) {
+
+		this->posX = _posX;
+		this->posY = _posY;
+		this->texture = _texture;
+		this->isPlatform = _isPlatform; 
+		this->type = _type;
+		this->world = _world;
+		this->length = _length;
+		this->width = _width;
+		this->player_posX = player_posX;
+		this->player_posY = player_posY;
+		addToWorld();
+
+	};
+
 	void destroy() { 
 
 		world->DestroyBody(body);
@@ -86,8 +109,14 @@ public:
 		FixtureDef.friction = 0.7f;
 		FixtureDef.shape = &Shape;
 		body->CreateFixture(&FixtureDef);
+		if (!isPlatform) SetLinearVelocity(100.f, 0.f);
 
 
+	}
+	void SetLinearVelocity(float x, float y) {
+
+		b2Vec2 vel = b2Vec2(x, y);
+		body->SetLinearVelocity(vel);
 	}
 	Sprite drawSprite() {
 
@@ -97,7 +126,7 @@ public:
 			SCALE * body->GetPosition().y);
 		sprite.setRotation(body->GetAngle() * 180 / b2_pi);
 		time += 1;
-		if (time == 100) {
+		if (*player_posX > (float)posX + 100) {
 			destroy();
 		}
 
