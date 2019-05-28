@@ -2,50 +2,66 @@
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
 #include "b2GLDraw.h"
+//#include "Game.h"
 #include<iostream>
 #include<conio.h> 
 #include<vector>
 
 static const float SCALE = 30.f;
 using namespace sf; 
+using namespace std;
+
 class PhysicsObjectWithSprite {
 	//background process calls this per dt 
+public:
 	Texture texture;
 	int type = 0;
 	int posX = 0, posY = 0;
 	b2Body* body;
+bool active = true;
 	Sprite sprite;
-	//int objectNum  = (int) objectList.size();
-	int time = 0;
+	b2World* world;
+	int objectNum  = 0;
+	int time = 0; 
 public:
-	PhysicsObjectWithSprite(Texture _texture, int _type) {
+	PhysicsObjectWithSprite( 
+		Texture _texture, int _type, b2World * _world) {
 		texture = _texture;
 		type = _type;
+		world = _world;  
+		addToWorld();
 
 	};
 	PhysicsObjectWithSprite() {
 
 	};
 	 
-	void destroy() {
-		//objectList.erase(objectList[objectNum]); 
 
-
-	}
-	PhysicsObjectWithSprite(Texture _texture, int _type, int _posX, int _posY) {
-		texture = _texture;
-		type = _type;
-		posX = _posX;
-		posY = _posY;
+	PhysicsObjectWithSprite( 
+		Texture _texture, int _type, int _posX, int _posY, b2World * _world) {
+		 
+		this->posX = _posX;
+		this->posY = _posY;
+		this->texture = _texture;
+		this->type = _type;
+		this->world = _world; 
+		addToWorld();
 
 	};
 
-	void addToWorld(b2World& world) {
+	void destroy() { 
+		active = false;
+		world->DestroyBody(body);
+		//delete this;
+
+	}
+
+	void addToWorld( ) {
 
 		b2BodyDef BodyDef;
 		BodyDef.position = b2Vec2(posX / SCALE, posY / SCALE);
 		BodyDef.type = (type == 0) ? b2_staticBody : b2_dynamicBody;
-		body = world.CreateBody(&BodyDef);
+		body = world->CreateBody(&BodyDef);
 
 		b2PolygonShape Shape;
 		Shape.SetAsBox((32.f / 2) / SCALE, (32.f / 2) / SCALE);
@@ -65,8 +81,8 @@ public:
 			SCALE * body->GetPosition().y);
 		sprite.setRotation(body->GetAngle() * 180 / b2_pi);
 		time += 1;
-		if (time == 300) {
-			//destroy();
+		if (time == 100) {
+			destroy();
 		}
 
 
